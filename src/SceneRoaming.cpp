@@ -55,8 +55,7 @@ void SceneRoaming::draw_blend_pass()
 	_synthShader->setVec2("R",glm::vec2(this->_windowWidth,this->_windowHeight));
 
 	glActiveTexture(GL_TEXTURE0);
-	_noiseTexture->bind();
-
+	_gaussianTexture->bind();
 	rq->renderQuad();
 }
 

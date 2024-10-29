@@ -1,4 +1,3 @@
-# write a function scale that takes an image and a scaling factor and returns a new image that is the original image scaled by the factor.
 import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt

@@ -19,6 +19,7 @@ SceneRoaming::SceneRoaming(const std::string &basedir)
 
     //synth noise textures
     _noiseTexture.reset(new Texture2D(synthTexturePath));
+    _gaussianTexture.reset(new Texture2D(gaussianTexturePath));
 
     // init imgui
     IMGUI_CHECKVERSION();

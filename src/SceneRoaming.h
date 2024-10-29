@@ -34,6 +34,8 @@ private:
 	std::unique_ptr<Shader> _synthShader;
 	//synth noise texture
 	std::unique_ptr<Texture> _noiseTexture;
+	//synth noise texture
+	std::unique_ptr<Texture> _gaussianTexture;
 
 
 	void renderFrame() override;
@@ -53,6 +55,7 @@ private:
 
 //synth shader
 const std::string synthTexturePath = "../data/noise/granite_128.png";
+const std::string gaussianTexturePath = "../output/granite_128_g.png";
 const std::string synthVertCode = "../shader/synth.vs";
 const std::string synthFragCode = "../shader/synth.fs";
 const std::string debugVertCode = "../shader/debug.vs";
