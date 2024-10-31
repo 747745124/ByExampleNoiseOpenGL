@@ -4,10 +4,12 @@
 
 out vec4 FragColor;
 in vec2 TexCoords;
-uniform sampler2D srcText;
+uniform sampler2D src_texture;
+uniform sampler2D gauss_texture;
 // uniform vec2 R;//screen resolution
 uniform vec2 R = vec2(1024.0, 576.0);
 vec2 U = (TexCoords * R) / R.y * scale; 
+uniform int blendMode = 0;
 
 // float erf(float x) {        // very good approx https://en.wikipedia.org/wiki/Error_function
 //     float e = exp(-x*x); // ( Bürmann series )
@@ -57,8 +59,8 @@ vec2 duvdx = dFdx(U/scale);
 vec2 duvdy = dFdy(U/scale);
 
 vec3 fetch(vec2 uv) {
-    // return srgb2rgb(textureGrad(srcText, U/scale + hash(uv), duvdx, duvdy).rgb);
-    return textureGrad(srcText, U/scale + hash(uv), duvdx, duvdy).rgb;
+    // return srgb2rgb(textureGrad(gauss_texture, U/scale + hash(uv), duvdx, duvdy).rgb);
+    return textureGrad(gauss_texture, U/scale + hash(uv), duvdx, duvdy).rgb;
 }
 
 void main() {
@@ -75,7 +77,8 @@ void main() {
     F.z = 1.0 - F.x - F.y; // local hexa coordinates
     vec3 upper;
     vec3 avg = vec3(0.5);
-    // vec3 avg = textureLod(srcText, TexCoords, 1000.f).rgb;//average color from mipmap
+    // vec3 avg = textureLod(gauss, TexCoords, 1000.f).rgb; //average color from mipmap
+
 
     if ( F.z > 0.0 )
         upper = ( W.x=   F.z ) * fetch(I)                      // smart interpolation
@@ -86,13 +89,16 @@ void main() {
             + ( W.y=1. - F.y ) * fetch(I+vec2(1,0)) 
             + ( W.z=1. - F.x ) * fetch(I+vec2(0,1));
 
-    //vec3 G_cov = (upper - avg)/length(W) + avg;
-    vec3 G_cov = (upper-avg)/length(W) + avg;
+    
 
+    vec3 G_cov = (upper-avg)/length(W) + avg;
     //inverse gaussian transformation
     vec3 U = vec3(0.5) + 0.5*erf((G_cov - vec3(0.5))/(6*sqrt(2.0)));
     FragColor = vec4(clamp(G_cov,0.0,1.0), 1.0);
 
+    if(blendMode==0)
+        G_cov = upper;
+        
     FragColor = vec4((G_cov), 1.0);
 
     // FragColor = texture(srcText, TexCoords);

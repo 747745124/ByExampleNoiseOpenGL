@@ -17,17 +17,10 @@ void SceneRoaming::drawLightGUI()
     }
     else
     {
-        ImGui::Text("Example");
-        // ImGui::Text("Shadow Type");
-        // ImGui::RadioButton("Direct Shadow Mapping", &shadowType, 0);
-        // ImGui::SameLine();
-        // ImGui::RadioButton("PCF", &shadowType, 1);
-        // ImGui::SameLine();
-        // ImGui::RadioButton("PCSS", &shadowType, 2);
-        // ImGui::SameLine();
-        // ImGui::RadioButton("VSM", &shadowType, 3);
-
-
+        ImGui::Text("Shadow Type");
+        ImGui::RadioButton("Linear Mapping", &blendMode, 0);
+        ImGui::SameLine();
+        ImGui::RadioButton("Variance Preserving Mapping", &blendMode, 1);
         ImGui::End();
     }
 

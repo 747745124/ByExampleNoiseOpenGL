@@ -23,8 +23,8 @@ void SceneRoaming::renderFrame()
 	glEnable(GL_DEPTH_TEST);
 
 	draw_debug_pass();
-
 	draw_blend_pass();
+	drawLightGUI();
 }
 
 
@@ -53,8 +53,11 @@ void SceneRoaming::draw_blend_pass()
 
 	_synthShader->use();
 	_synthShader->setVec2("R",glm::vec2(this->_windowWidth,this->_windowHeight));
+	_synthShader->setInt("blendMode",blendMode);
 
 	glActiveTexture(GL_TEXTURE0);
+	_noiseTexture->bind();
+	glActiveTexture(GL_TEXTURE1);
 	_gaussianTexture->bind();
 	rq->renderQuad();
 }

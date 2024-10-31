@@ -36,6 +36,7 @@ private:
 	std::unique_ptr<Texture> _noiseTexture;
 	//synth noise texture
 	std::unique_ptr<Texture> _gaussianTexture;
+	int blendMode = 0;
 
 
 	void renderFrame() override;
