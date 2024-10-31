@@ -86,6 +86,46 @@ def plot_rgb_histograms_comparison(image1_path, image2_path, bins=256, figure_si
     plt.tight_layout()
     plt.show()
 
+def plot_rgb_histograms_comparison(image1_path, image2_path, image3_path , image4_path, bins=256, figure_size=(15, 5)):
+    # Read both images
+    img1 = io.imread(image1_path)
+    img2 = io.imread(image2_path)
+    img3 = io.imread(image3_path)
+    img4 = io.imread(image4_path)
+
+    # Create subplots
+    fig, (ax1, ax2, ax3, ax4) = plt.subplots(1, 4, figsize=figure_size)
+
+    # Plot histograms for each image
+    for ax, img, title in zip([ax1, ax2, ax3, ax4], [img1, img2, img3, img4], ['Image 1', 'Image 2', 'Image 3', 'Image 4']):
+        colors = ('red', 'green', 'blue')
+        for i, color in enumerate(colors):
+            hist, bin_centers = histogram(img[:,:,i], nbins=bins, normalize=True)
+            # Apply smoothing
+            smoothed_hist = np.convolve(hist, np.ones(5)/5, mode='valid')
+            smoothed_bins = bin_centers[2:-2]
+
+            ax.plot(smoothed_bins, smoothed_hist, color=color, alpha=0.7, 
+                   linewidth=2, label=color.upper())
+
+        ax.set_xlabel('Pixel Intensity')
+        ax.set_ylabel('Normalized Frequency')
+        ax.set_title(f'RGB Histogram - {title}')
+        ax.legend()
+        ax.grid(True, alpha=0.2)
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+
+    plt.tight_layout()
+    plt.show()
+
+
+
+
+
+
+
+
 from skimage.exposure import histogram
 from skimage.util import compare_images
 
@@ -256,15 +296,17 @@ def main():
     # plot_rgb_histogram(image_path)
     
     # For comparison of two images
-    image_path = "./data/noise/fire_256.png"
-    gaussian_path = "./output/fire_128_g_ot.png"
+    plot_rgb_histograms_comparison("./data/noise/wood_256.png", "./mapped/wood_blended_mapped.png"
+    ,"./mapped/wood_linear.png","./mapped/wood_var.png")
+    # image_path = "./data/noise/fire_256.png"
+    # gaussian_path = "./output/fire_128_g_ot.png"
     # gaussian_image = load_image(image1_path)
     # blended_image = load_image(blended_path)
     # analyze_gaussian_input(gaussian_image)
     # plot_2d_distributions(gaussian_image)
-    original_image = load_image(image_path)
-    gaussian_image = load_image(gaussian_path)
-    analyze_gaussian_input(gaussian_image)
+    # original_image = load_image(image_path)
+    # gaussian_image = load_image(gaussian_path)
+    # analyze_gaussian_input(gaussian_image)
     # analyze_gaussian_input(mapped_image)
     # plot_image_difference(image_path, mapped_path)
     # analyze_gaussian_input(blended_image)

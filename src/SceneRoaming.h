@@ -37,6 +37,7 @@ private:
 	//synth noise texture
 	std::unique_ptr<Texture> _gaussianTexture;
 	int blendMode = 0;
+	bool hideGUI = false;
 
 
 	void renderFrame() override;
@@ -55,8 +56,8 @@ private:
 };
 
 //synth shader
-const std::string synthTexturePath = "../data/noise/granite_256.png";
-const std::string gaussianTexturePath = "../output/granite_256_g.png";
+const std::string synthTexturePath = "../data/noise/wood_256.png";
+const std::string gaussianTexturePath = "../output/wood_256_g.png";
 const std::string synthVertCode = "../shader/synth.vs";
 const std::string synthFragCode = "../shader/synth.fs";
 const std::string debugVertCode = "../shader/debug.vs";

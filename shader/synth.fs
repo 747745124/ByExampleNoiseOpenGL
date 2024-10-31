@@ -10,7 +10,6 @@ uniform sampler2D gauss_texture;
 uniform vec2 R = vec2(1024.0, 576.0);
 vec2 U = (TexCoords * R) / R.y * scale; 
 uniform int blendMode = 0;
-
 // float erf(float x) {        // very good approx https://en.wikipedia.org/wiki/Error_function
 //     float e = exp(-x*x); // ( Bürmann series )
 //     return sign(x)/P * sqrt( 1.0 - e ) * ( P + 31.0/200.0*e - 341.0/8000. *e*e );
@@ -60,7 +59,9 @@ vec2 duvdy = dFdy(U/scale);
 
 vec3 fetch(vec2 uv) {
     // return srgb2rgb(textureGrad(gauss_texture, U/scale + hash(uv), duvdx, duvdy).rgb);
-    return textureGrad(gauss_texture, U/scale + hash(uv), duvdx, duvdy).rgb;
+    if(blendMode==2)
+        return textureGrad(gauss_texture, U/scale + hash(uv), duvdx, duvdy).rgb;
+    return textureGrad(src_texture, U/scale + hash(uv), duvdx, duvdy).rgb;
 }
 
 void main() {
@@ -98,7 +99,7 @@ void main() {
 
     if(blendMode==0)
         G_cov = upper;
-        
+
     FragColor = vec4((G_cov), 1.0);
 
     // FragColor = texture(srcText, TexCoords);

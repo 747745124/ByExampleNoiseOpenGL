@@ -24,7 +24,8 @@ void SceneRoaming::renderFrame()
 
 	draw_debug_pass();
 	draw_blend_pass();
-	drawLightGUI();
+	if(!hideGUI)
+		drawLightGUI();
 }
 
 
@@ -65,4 +66,11 @@ void SceneRoaming::draw_blend_pass()
 void SceneRoaming::handleInput()
 {
 	// handle input
+	if (_keyboardInput.keyStates[GLFW_KEY_SPACE] == GLFW_PRESS)
+	{
+		hideGUI=!hideGUI;
+		_keyboardInput.keyStates[GLFW_KEY_SPACE] = GLFW_RELEASE;
+		return;
+	}
+
 };

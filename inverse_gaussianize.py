@@ -27,8 +27,6 @@ def image_mapping(gaussian_image_path, reference_image_path, allow_diff_dimensio
 # the lut_size is set to 24 
 # as it would take too much space to fit in memory during calculation
 # it will be updated to a batched version once it's correctly implemented.
-
-
 def create_lut(ref_image, lut_size=24, isSave=True):
     """
     Create LUT with proper range mapping
@@ -159,8 +157,8 @@ def process_texture(gaussian_image_path, reference_image_path):
 
 
 if __name__ == '__main__':
-    gaussian_image_path = './output/fire_256_g.png'
-    reference_image_path = './data/noise/fire_128.png'
-    # result = image_mapping(gaussian_image_path, reference_image_path, allow_diff_dimensions=True, sample_from_dest=True)
-    result = process_texture(gaussian_image_path, reference_image_path)
-    io.imsave('mapped/gaussian_mapped.png', (result*255).astype('uint8'))
+    gaussian_image_path = './output/wood_g_var_blended.png'
+    reference_image_path = './data/noise/wood_256.png'
+    result = image_mapping(gaussian_image_path, reference_image_path, allow_diff_dimensions=True, sample_from_dest=True)
+    # result = process_texture(gaussian_image_path, reference_image_path)
+    io.imsave('mapped/wood_ot_mapped.png', (result*255).astype('uint8'))
