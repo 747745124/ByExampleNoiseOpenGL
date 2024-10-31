@@ -256,16 +256,19 @@ def main():
     # plot_rgb_histogram(image_path)
     
     # For comparison of two images
-    image1_path = "./output/wood_256_g_10m.png"
-    image2_path = "./output/wood_256_g_builtin.png"
-    blended_path = "./output/granite_blended.png"
-    gaussian_image = load_image(image1_path)
-    blended_image = load_image(blended_path)
+    image_path = "./data/noise/fire_256.png"
+    gaussian_path = "./output/fire_128_g_ot.png"
+    # gaussian_image = load_image(image1_path)
+    # blended_image = load_image(blended_path)
     # analyze_gaussian_input(gaussian_image)
     # plot_2d_distributions(gaussian_image)
-
-    analyze_gaussian_input(blended_image)
-    plot_2d_distributions(blended_image)
+    original_image = load_image(image_path)
+    gaussian_image = load_image(gaussian_path)
+    analyze_gaussian_input(gaussian_image)
+    # analyze_gaussian_input(mapped_image)
+    # plot_image_difference(image_path, mapped_path)
+    # analyze_gaussian_input(blended_image)
+    # plot_2d_distributions(blended_image)
     
 
 if __name__ == "__main__":

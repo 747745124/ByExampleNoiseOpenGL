@@ -115,7 +115,7 @@ def analyze_color_coverage(LUT, original_texture):
 
 
 if __name__ == "__main__":
-    LUT = np.load('lut_improved.npy')
+    LUT = np.load('lut.npy')
     visualize_lut_mapping(LUT)
     original_texture = load_image('./data/noise/fire_256.png')
     analyze_color_coverage(LUT, original_texture)

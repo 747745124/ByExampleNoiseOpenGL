@@ -6,6 +6,7 @@ from scipy.special import erfinv
 import os
 from tqdm import tqdm
 from image_scaler import load_image
+from skimage.exposure import match_histograms
 
 # this gaussianize step requires batch processing,
 # as the cost matrix is too large to fit in memory
@@ -105,7 +106,7 @@ def optimal_transport(src_image, dest_image, allow_diff_dimensions=False, sample
 
     return gaussianized_image
 
-    
+
 def gaussianize_image(input_image_path, mean=0.5, variance=1/36):
     image = load_image(input_image_path)
     gaussianize_variables = create_random_gaussian_image(image.shape, mean, variance)
@@ -115,15 +116,25 @@ def gaussianize_image(input_image_path, mean=0.5, variance=1/36):
 
     return gaussianized_image
 
+# Direct histogram mapping without optimal transport, looks pretty weird
+# def gaussianize_image_without_ot(input_image_path, mean=0.5, variance=1/36):
+#     image = load_image(input_image_path)
+#     gaussianize_variables = create_random_gaussian_image(image.shape, mean, variance)
+
+#     assert image.shape == gaussianize_variables.shape, "The images must have the same dimensions."
+#     gaussianized_image = match_histograms(image, gaussianize_variables, channel_axis=2)
+
+#     return gaussianized_image
 
 if __name__ == '__main__':
     # Gaussianize an texture image here
     # input image path
     input_image_path = 'data/noise/fire_128.png'
+    # gaussianize the image
     result = gaussianize_image(input_image_path)
-
+    
     # just keep the file name + _g, and put it under output folder
-    output_path = os.path.join('output', os.path.basename(input_image_path).split('.')[0] + '_g.png')
+    output_path = os.path.join('output', os.path.basename(input_image_path).split('.')[0] + '_g_ot.png')
     io.imsave(output_path, (result*255).astype('uint8'))
 
 

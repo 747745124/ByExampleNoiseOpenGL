@@ -12,10 +12,13 @@ SceneRoaming::SceneRoaming(const std::string &basedir)
 
     //synth shader initialization
     _synthShader.reset(new Shader(synthVertCode, synthFragCode));
-
     _debugShader.reset(new Shader(debugVertCode, debugFragCode));
     _debugShader->use();
     _debugShader->setInt("debugText", 0);
+
+    _synthShader->use();
+    _synthShader->setInt("src_texture",0);
+    _synthShader->setInt("gauss_texture",1);
 
     //synth noise textures
     _noiseTexture.reset(new Texture2D(synthTexturePath));

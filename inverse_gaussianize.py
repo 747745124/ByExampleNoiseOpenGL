@@ -27,28 +27,48 @@ def image_mapping(gaussian_image_path, reference_image_path, allow_diff_dimensio
 # the lut_size is set to 24 
 # as it would take too much space to fit in memory during calculation
 # it will be updated to a batched version once it's correctly implemented.
+
+
 def create_lut(ref_image, lut_size=24, isSave=True):
-    # Create uniform grid for LUT
-    # most of the range of u is [0.467 to 0.533]
-    u = (np.arange(lut_size)*1/15) / lut_size + 0.467
+    """
+    Create LUT with proper range mapping
+    """
+    # Calculate theoretical U range
+    u_min = 0.5 + 0.5 * erf(-0.5/(6*np.sqrt(2)))  # ≈ 0.467
+    u_max = 0.5 + 0.5 * erf(0.5/(6*np.sqrt(2)))   # ≈ 0.533
+    u_range = u_max - u_min
+    
+    # Create uniform grid mapped to expected U range
+    u = np.linspace(0, 1, lut_size)  # Use full [0,1] range
+    # Map [0,1] to [u_min, u_max]
+    u = u * u_range + u_min
+    
     grid = np.stack(np.meshgrid(u, u, u, indexing='ij'), -1)
     grid = grid.reshape(-1, 3)
     N = lut_size
 
+    # Transform U coordinates to Gaussian space
     G = 0.5 + 6 * np.sqrt(2) * erfinv(2 * grid - 1)
     G = np.clip(G, 0, 1-1e-6)
 
-    ref_samples = ref_image.reshape(ref_image.shape[0]*ref_image.shape[1], 3)
-    
-    # Sample pixels from the ref image
-    if len(ref_samples) > len(grid):
+    # Sample reference colors
+    ref_samples = ref_image.reshape(-1, 3)
+    if len(ref_samples) < len(grid):
         indices = np.random.choice(len(ref_samples), len(grid), replace=True)
+        ref_samples = ref_samples[indices]
+    else:
+        indices = np.random.choice(len(ref_samples), len(grid), replace=False)
         ref_samples = ref_samples[indices]
     
     # Create transport mapping
     cost_matrix = ot.dist(grid, ref_samples)
-    P = ot.emd([], [], cost_matrix, numItermax=10000000, numThreads=os.cpu_count())
+    P = ot.emd(np.ones(len(grid))/len(grid), 
+               np.ones(len(ref_samples))/len(ref_samples), 
+               cost_matrix, 
+               numItermax=10000000, 
+               numThreads=os.cpu_count())
     
+    # Create LUT
     LUT = np.zeros((N, N, N, 3))
     for i in range(N):
         for j in range(N):
@@ -61,32 +81,66 @@ def create_lut(ref_image, lut_size=24, isSave=True):
 
     return LUT
 
-
 def apply_inverse_mapping(gaussian_image, LUT):
+    """
+    Apply inverse mapping with trilinear interpolation
+    """
     N = LUT.shape[0]
-    
     width, height, _ = gaussian_image.shape
-    gaussian_image = gaussian_image.reshape(width * height, 3)
-
-    # Transform Gaussian to uniform
-    U = 0.5 + 0.5 * erf((gaussian_image-0.5) / (6 * np.sqrt(2)))
-    U = np.clip(U, 1e-6, 1-1e-6)
     
-    # Scale to LUT coordinates
-    U = U * (N-1)
+    # Calculate U range
+    u_min = 0.5 + 0.5 * erf(-0.5/(6*np.sqrt(2)))
+    u_max = 0.5 + 0.5 * erf(0.5/(6*np.sqrt(2)))
+    u_range = u_max - u_min
+    
+    # Reshape input for processing
+    gaussian_image = gaussian_image.reshape(-1, 3)
 
-    # for each pixel in the image, we need to find the corresponding pixel in the LUT
-    # we can do this by finding the nearest neighbour in the LUT
-    # we can do this by rounding the coordinates to the nearest integer
-
-    # Get integer coordinates and interpolation weights
+    # Transform Gaussian to U space
+    U = 0.5 + 0.5 * erf((gaussian_image-0.5) / (6 * np.sqrt(2)))
+    U = np.clip(U, u_min, u_max)
+    
+    # Map from U range to [0,1] for LUT coordinates
+    U = (U - u_min) / u_range
+    U = U * (N-1)  # Scale to LUT size
+    
+    # Get integer coordinates and fractions for interpolation
     i0 = np.floor(U).astype(int)
-    i0 = np.clip(i0, 0, N-1)
-
-    gaussian_image = [LUT[i0[i,0], i0[i,1], i0[i,2]] for i in range(len(i0))]
-    gaussian_image = np.array(gaussian_image)
-    gaussian_image.resize((width, height, 3))
-    return gaussian_image
+    i1 = np.minimum(i0 + 1, N-1)
+    alpha = U - i0
+    
+    # Initialize result array
+    result = np.zeros_like(gaussian_image)
+    
+    # Apply trilinear interpolation
+    for i in range(len(U)):
+        x0, y0, z0 = i0[i]
+        x1, y1, z1 = i1[i]
+        fx, fy, fz = alpha[i]
+        
+        # Get the 8 surrounding colors
+        c000 = LUT[x0, y0, z0]
+        c001 = LUT[x0, y0, z1]
+        c010 = LUT[x0, y1, z0]
+        c011 = LUT[x0, y1, z1]
+        c100 = LUT[x1, y0, z0]
+        c101 = LUT[x1, y0, z1]
+        c110 = LUT[x1, y1, z0]
+        c111 = LUT[x1, y1, z1]
+        
+        # Trilinear interpolation
+        result[i] = (
+            c000 * (1-fx) * (1-fy) * (1-fz) +
+            c001 * (1-fx) * (1-fy) * fz +
+            c010 * (1-fx) * fy * (1-fz) +
+            c011 * (1-fx) * fy * fz +
+            c100 * fx * (1-fy) * (1-fz) +
+            c101 * fx * (1-fy) * fz +
+            c110 * fx * fy * (1-fz) +
+            c111 * fx * fy * fz
+        )
+    
+    return result.reshape(width, height, 3)
 
 
 def process_texture(gaussian_image_path, reference_image_path):
@@ -96,7 +150,7 @@ def process_texture(gaussian_image_path, reference_image_path):
     reference_image = load_image(reference_image_path)
 
     # Create LUT mapping
-    LUT = create_lut_alt(reference_image)
+    LUT = create_lut(reference_image, 24)
     
     # Apply mapping with interpolation
     result = apply_inverse_mapping(gaussian_image, LUT)
@@ -108,5 +162,5 @@ if __name__ == '__main__':
     gaussian_image_path = './output/fire_256_g.png'
     reference_image_path = './data/noise/fire_128.png'
     # result = image_mapping(gaussian_image_path, reference_image_path, allow_diff_dimensions=True, sample_from_dest=True)
-    result = process_texture_alt(gaussian_image_path, reference_image_path)
-    io.imsave('mapped/gaussian_mapped_alt.png', (result*255).astype('uint8'))
+    result = process_texture(gaussian_image_path, reference_image_path)
+    io.imsave('mapped/gaussian_mapped.png', (result*255).astype('uint8'))
