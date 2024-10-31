@@ -296,7 +296,7 @@ def main():
     # plot_rgb_histogram(image_path)
     
     # For comparison of two images
-    plot_rgb_histograms_comparison("./data/noise/wood_256.png", "./mapped/wood_blended_mapped.png"
+    plot_rgb_histograms_comparison("./data/noise/wood_256.png", "./mapped/wood_ot_mapped.png"
     ,"./mapped/wood_linear.png","./mapped/wood_var.png")
     # image_path = "./data/noise/fire_256.png"
     # gaussian_path = "./output/fire_128_g_ot.png"

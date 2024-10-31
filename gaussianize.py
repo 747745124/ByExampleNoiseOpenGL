@@ -6,6 +6,7 @@ from scipy.special import erfinv
 import os
 from tqdm import tqdm
 from image_scaler import load_image
+import matplotlib.pyplot as plt
 from skimage.exposure import match_histograms
 
 # this gaussianize step requires batch processing,
@@ -15,7 +16,7 @@ from skimage.exposure import match_histograms
 # so we need to compute it in batches
 
 # A batched implementation of the optimal transport, to avoid OOM
-def batch(sources, targets, batch_size = 10000):
+def batch(sources, targets, batch_size = 1000):
     # Calculating the transport plan in batches, requires flatten images
     num_source = sources.shape[0]
     num_target = targets.shape[0]
@@ -37,6 +38,9 @@ def batch(sources, targets, batch_size = 10000):
     return transport_plan_batches,source_batches,target_batches
 
 def create_random_gaussian_image(shape, mean, variance, useBuiltin=True, useClipping=True):
+     # Generate spatially coherent Gaussian noise
+    from scipy.ndimage import gaussian_filter
+
     height, width, _ = shape
     sigma = np.sqrt(variance)
 
@@ -49,13 +53,14 @@ def create_random_gaussian_image(shape, mean, variance, useBuiltin=True, useClip
             uniform_random = np.random.rand(height, width)
             # Convert uniform to Gaussian using inverse CDF (ppf in scipy)
             gaussian_variables[:, :, channel] = mean + sigma * np.sqrt(2) * erfinv(2 * uniform_random - 1)
-    
+
+    # This clipping is necessary to avoid numerical instability, must be 0 to 1
     if useClipping:
-        gaussian_variables = np.clip(gaussian_variables, mean - 4*sigma, mean + 4*sigma)
+        gaussian_variables = np.clip(gaussian_variables, 0, 1)
 
     return gaussian_variables
 
-def optimal_transport(src_image, dest_image, allow_diff_dimensions=False, sample_from_dest=False):
+def optimal_transport(src_image, dest_image, allow_diff_dimensions=False, sample_from_dest=False, batch_size=1000):
 
     src_image_flat = src_image.reshape((src_image.shape[0] * src_image.shape[1], src_image.shape[2])).astype(np.float64)
     dest_image_flat = dest_image.reshape((dest_image.shape[0] * dest_image.shape[1], dest_image.shape[2])).astype(np.float64)
@@ -84,7 +89,7 @@ def optimal_transport(src_image, dest_image, allow_diff_dimensions=False, sample
                 src_image_flat = src_image_flat[indices]
 
     # Compute the transport plan in batches
-    transport_plan_batches, source_batches, target_batches = batch(src_image_flat, dest_image_flat)
+    transport_plan_batches, source_batches, target_batches = batch(src_image_flat, dest_image_flat, batch_size)
     gaussianized_image = np.zeros_like(src_image_flat)
 
     # Map each batch individually
@@ -116,7 +121,8 @@ def gaussianize_image(input_image_path, mean=0.5, variance=1/36):
 
     return gaussianized_image
 
-# Direct histogram mapping without optimal transport, looks pretty weird
+# Direct histogram mapping without optimal transport, looks pretty weird, 
+# it doesn't preserve the structure of the image
 # def gaussianize_image_without_ot(input_image_path, mean=0.5, variance=1/36):
 #     image = load_image(input_image_path)
 #     gaussianize_variables = create_random_gaussian_image(image.shape, mean, variance)
@@ -129,12 +135,12 @@ def gaussianize_image(input_image_path, mean=0.5, variance=1/36):
 if __name__ == '__main__':
     # Gaussianize an texture image here
     # input image path
-    input_image_path = 'data/noise/fire_128.png'
+    input_image_path = 'data/noise/granite_128.png'
     # gaussianize the image
     result = gaussianize_image(input_image_path)
     
     # just keep the file name + _g, and put it under output folder
-    output_path = os.path.join('output', os.path.basename(input_image_path).split('.')[0] + '_g_ot.png')
+    output_path = os.path.join('output', os.path.basename(input_image_path).split('.')[0] + '_g.png')
     io.imsave(output_path, (result*255).astype('uint8'))
 
 
