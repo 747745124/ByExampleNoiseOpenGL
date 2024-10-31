@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from skimage import io
 from skimage.exposure import histogram
+from image_scaler import load_image
 
 def plot_rgb_histogram(image_path, bins=256, figure_size=(10, 6)):
     """
@@ -196,6 +197,58 @@ def analyze_image_differences(image1_path, image2_path):
         for measure, value in measures.items():
             print(f"{measure.capitalize():>10}: {value:.4f}")
 
+def analyze_gaussian_input(gaussian_image):
+    plt.figure(figsize=(15, 5))
+    
+    # Plot histograms for each channel
+    channels = ['Red', 'Green', 'Blue']
+    for i in range(3):
+        plt.subplot(1, 3, i+1)
+        plt.hist(gaussian_image[:,:,i].ravel(), bins=50, density=True)
+        plt.title(f'{channels[i]} Channel Distribution')
+        plt.xlabel('Value')
+        plt.ylabel('Density')
+    
+    # Print statistics
+    print("Gaussian Image Statistics:")
+    print("Mean:", gaussian_image.mean(axis=(0,1)))
+    print("Std:", gaussian_image.std(axis=(0,1)))
+    print("Min:", gaussian_image.min(axis=(0,1)))
+    print("Max:", gaussian_image.max(axis=(0,1)))
+    
+    plt.tight_layout()
+    plt.show()
+
+def plot_2d_distributions(gaussian_image):
+    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+    
+    # R-G distribution
+    axes[0].scatter(gaussian_image[:,:,0].ravel(), 
+                   gaussian_image[:,:,1].ravel(), 
+                   alpha=0.1, s=1)
+    axes[0].set_title('R-G Distribution')
+    axes[0].set_xlabel('Red')
+    axes[0].set_ylabel('Green')
+    
+    # R-B distribution
+    axes[1].scatter(gaussian_image[:,:,0].ravel(), 
+                   gaussian_image[:,:,2].ravel(), 
+                   alpha=0.1, s=1)
+    axes[1].set_title('R-B Distribution')
+    axes[1].set_xlabel('Red')
+    axes[1].set_ylabel('Blue')
+    
+    # G-B distribution
+    axes[2].scatter(gaussian_image[:,:,1].ravel(), 
+                   gaussian_image[:,:,2].ravel(), 
+                   alpha=0.1, s=1)
+    axes[2].set_title('G-B Distribution')
+    axes[2].set_xlabel('Green')
+    axes[2].set_ylabel('Blue')
+    
+    plt.tight_layout()
+    plt.show()
+
 # Example usage
 def main():
     # Example with sample image paths
@@ -205,8 +258,15 @@ def main():
     # For comparison of two images
     image1_path = "./output/wood_256_g_10m.png"
     image2_path = "./output/wood_256_g_builtin.png"
-    # plot_rgb_histograms_comparison(image1_path, image2_path)
-    plot_image_difference(image1_path, image2_path)
+    blended_path = "./output/granite_blended.png"
+    gaussian_image = load_image(image1_path)
+    blended_image = load_image(blended_path)
+    # analyze_gaussian_input(gaussian_image)
+    # plot_2d_distributions(gaussian_image)
+
+    analyze_gaussian_input(blended_image)
+    plot_2d_distributions(blended_image)
+    
 
 if __name__ == "__main__":
     main()

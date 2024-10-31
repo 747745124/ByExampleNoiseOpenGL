@@ -27,16 +27,16 @@ def image_mapping(gaussian_image_path, reference_image_path, allow_diff_dimensio
 # the lut_size is set to 24 
 # as it would take too much space to fit in memory during calculation
 # it will be updated to a batched version once it's correctly implemented.
-def create_lut(ref_image, lut_size=24):
+def create_lut(ref_image, lut_size=24, isSave=True):
     # Create uniform grid for LUT
-    u = (np.arange(lut_size) + 0.5) / lut_size
+    # most of the range of u is [0.467 to 0.533]
+    u = (np.arange(lut_size)*1/15) / lut_size + 0.467
     grid = np.stack(np.meshgrid(u, u, u, indexing='ij'), -1)
     grid = grid.reshape(-1, 3)
     N = lut_size
 
-    # Each element in the grid is a Gaussian variable
     G = 0.5 + 6 * np.sqrt(2) * erfinv(2 * grid - 1)
-    G = np.clip(G, -10, 10)
+    G = np.clip(G, 0, 1-1e-6)
 
     ref_samples = ref_image.reshape(ref_image.shape[0]*ref_image.shape[1], 3)
     
@@ -56,52 +56,38 @@ def create_lut(ref_image, lut_size=24):
                 idx = i * N * N + j * N + k
                 LUT[i, j, k] = ref_samples[P[idx].argmax()]
 
-    # LUT = np.dot(P, ref_samples).reshape(N, N, N, 3)
+    if isSave:
+        np.save('lut.npy', LUT)
+
     return LUT
+
 
 def apply_inverse_mapping(gaussian_image, LUT):
     N = LUT.shape[0]
     
+    width, height, _ = gaussian_image.shape
+    gaussian_image = gaussian_image.reshape(width * height, 3)
+
     # Transform Gaussian to uniform
     U = 0.5 + 0.5 * erf((gaussian_image-0.5) / (6 * np.sqrt(2)))
     U = np.clip(U, 1e-6, 1-1e-6)
     
     # Scale to LUT coordinates
     U = U * (N-1)
-    
+
+    # for each pixel in the image, we need to find the corresponding pixel in the LUT
+    # we can do this by finding the nearest neighbour in the LUT
+    # we can do this by rounding the coordinates to the nearest integer
+
     # Get integer coordinates and interpolation weights
-    i0 = np.floor(U[:,:,0]).astype(int)
-    j0 = np.floor(U[:,:,1]).astype(int)
-    k0 = np.floor(U[:,:,2]).astype(int)
-    
-    i1 = np.minimum(i0 + 1, N-1)
-    j1 = np.minimum(j0 + 1, N-1)
-    k1 = np.minimum(k0 + 1, N-1)
-    
-    # Interpolation weights
-    wi = U[:,:,0] - i0
-    wj = U[:,:,1] - j0
-    wk = U[:,:,2] - k0
-    
-    # Trilinear interpolation
-    c000 = LUT[i0, j0, k0]
-    c001 = LUT[i0, j0, k1]
-    c010 = LUT[i0, j1, k0]
-    c011 = LUT[i0, j1, k1]
-    c100 = LUT[i1, j0, k0]
-    c101 = LUT[i1, j0, k1]
-    c110 = LUT[i1, j1, k0]
-    c111 = LUT[i1, j1, k1]
-    
-    c00 = c000 * (1-wi)[:,:,None] + c100 * wi[:,:,None]
-    c01 = c001 * (1-wi)[:,:,None] + c101 * wi[:,:,None]
-    c10 = c010 * (1-wi)[:,:,None] + c110 * wi[:,:,None]
-    c11 = c011 * (1-wi)[:,:,None] + c111 * wi[:,:,None]
-    
-    c0 = c00 * (1-wj)[:,:,None] + c10 * wj[:,:,None]
-    c1 = c01 * (1-wj)[:,:,None] + c11 * wj[:,:,None]
-    
-    return c0 * (1-wk)[:,:,None] + c1 * wk[:,:,None]
+    i0 = np.floor(U).astype(int)
+    i0 = np.clip(i0, 0, N-1)
+
+    gaussian_image = [LUT[i0[i,0], i0[i,1], i0[i,2]] for i in range(len(i0))]
+    gaussian_image = np.array(gaussian_image)
+    gaussian_image.resize((width, height, 3))
+    return gaussian_image
+
 
 def process_texture(gaussian_image_path, reference_image_path):
     # Load the input image
@@ -110,16 +96,17 @@ def process_texture(gaussian_image_path, reference_image_path):
     reference_image = load_image(reference_image_path)
 
     # Create LUT mapping
-    LUT = create_lut(reference_image)
+    LUT = create_lut_alt(reference_image)
     
     # Apply mapping with interpolation
     result = apply_inverse_mapping(gaussian_image, LUT)
     
     return np.clip(result, 0, 1)
 
+
 if __name__ == '__main__':
     gaussian_image_path = './output/fire_256_g.png'
     reference_image_path = './data/noise/fire_128.png'
     # result = image_mapping(gaussian_image_path, reference_image_path, allow_diff_dimensions=True, sample_from_dest=True)
-    result = process_texture(gaussian_image_path, reference_image_path)
-    io.imsave('output/gaussian_mapped.png', (result*255).astype('uint8'))
+    result = process_texture_alt(gaussian_image_path, reference_image_path)
+    io.imsave('mapped/gaussian_mapped_alt.png', (result*255).astype('uint8'))
