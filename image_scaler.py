@@ -27,7 +27,7 @@ def scale(image, width, height):
 if __name__ == '__main__':
 
     input_folder = './data/noise'
-    name = 'cement.png'
+    name = 'fire.png'
     file_name = os.path.join(input_folder, name)
 
     img = Image.open(file_name).convert('RGB')

@@ -81,7 +81,6 @@ void main() {
     if(blendMode!=2)
         avg = textureLod(src_texture, TexCoords, 1000.f).rgb; //average color from mipmap
 
-
     if ( F.z > 0.0 )
         upper = ( W.x=   F.z ) * fetch(I)                      // smart interpolation
             + ( W.y=   F.y ) * fetch(I+vec2(0,1))            // of hexagonal texture patch
@@ -91,7 +90,6 @@ void main() {
             + ( W.y=1. - F.y ) * fetch(I+vec2(1,0)) 
             + ( W.z=1. - F.x ) * fetch(I+vec2(0,1));
 
-    
 
     vec3 G_cov = (upper-avg)/length(W) + avg;
     //inverse gaussian transformation
