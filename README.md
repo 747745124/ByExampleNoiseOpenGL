@@ -1,7 +1,7 @@
 ## An implementation (WIP) of the Paper "High Performance By Example Noise"
 
 #### Notes:
-* A quick sketch of the paper is: input (low-res) -gaussianize-> gaussian_image -blending-> blended gaussian -inverse_gaussianize-> high-res texture. So ideally you can get a infinite resolution texture with similar histogram as the input.
+* A quick sketch of the paper is: input (low-res texture) -gaussianize-> gaussian_image -blending-> blended gaussian -inverse_gaussianize-> high-res texture. So ideally you can get a infinite resolution texture with similar histogram as the input.
   
 * The implementation is currently an offline solution. I use PyOT to gaussianize the input texture, OpenGL (GLSL) to perform the blend and PyOT to perform the inverse transform.
 
