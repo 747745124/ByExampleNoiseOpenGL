@@ -298,12 +298,8 @@ def plot_2d_distributions(gaussian_image):
 
 # Example usage
 def main():
-    plot_rgb_histograms_comparison("./data/noise/fire_256.png", "./mapped/fire_mapped_ot.png"
-    ,"./mapped/fire_linear.png","./mapped/fire_var.png")
-
-
-
-
+    plot_rgb_histograms_comparison("./data/noise/marble_256.png", "./mapped/marble_mapped_ot.png"
+    ,"./mapped/marble_linear.png","./mapped/marble_var.png")
 
     # image_path = "./data/noise/fire_256.png"
     # gaussian_path = "./output/fire_128_g_ot.png"

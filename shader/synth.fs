@@ -1,13 +1,13 @@
 #version 330 core
 #define P  ( sqrt(3.14159265359)/2. )
-#define scale 8 //number of repetitions
+#define scale 12 //number of repetitions
 
 out vec4 FragColor;
 in vec2 TexCoords;
 uniform sampler2D src_texture;
 uniform sampler2D gauss_texture;
 // uniform vec2 R;//screen resolution
-uniform vec2 R = vec2(1024.0, 576.0);
+uniform vec2 R = vec2(1024.0, 1024.0);
 vec2 U = (TexCoords * R) / R.y * scale; 
 uniform int blendMode = 0;
 // float erf(float x) {        // very good approx https://en.wikipedia.org/wiki/Error_function
