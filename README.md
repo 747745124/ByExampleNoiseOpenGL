@@ -32,7 +32,7 @@
 #### Bugs / Artifacts of Implementation 
 
 * Most of the values after Gaussian->Uniform transform are within the range [0.467, 0.533], if we use a lut on the range of [0,1], we might get most of our pixels mapped to the same color. And thus making the results having very low contrast.
-* The blending might get horizontal | vertical artifacts for some reason.
+* The blending might gets horizontal or vertical artifacts for some reason.
 * The Optimal Transport method in my implementation makes the final histogram look squiggly (see results below).
 
 
