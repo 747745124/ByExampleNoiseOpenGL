@@ -58,10 +58,9 @@ vec2 duvdx = dFdx(U/scale);
 vec2 duvdy = dFdy(U/scale);
 
 vec3 fetch(vec2 uv) {
-    // return srgb2rgb(textureGrad(gauss_texture, U/scale + hash(uv), duvdx, duvdy).rgb);
     if(blendMode==2)
-        return textureGrad(gauss_texture, U/scale + hash(uv), duvdx, duvdy).rgb;
-    return textureGrad(src_texture, U/scale + hash(uv), duvdx, duvdy).rgb;
+        return (textureGrad(gauss_texture, U/scale + hash(uv), duvdx, duvdy).rgb);
+    return (textureGrad(src_texture, U/scale + hash(uv), duvdx, duvdy).rgb);
 }
 
 void main() {
@@ -78,7 +77,9 @@ void main() {
     F.z = 1.0 - F.x - F.y; // local hexa coordinates
     vec3 upper;
     vec3 avg = vec3(0.5);
-    // vec3 avg = textureLod(gauss, TexCoords, 1000.f).rgb; //average color from mipmap
+
+    if(blendMode!=2)
+        avg = textureLod(src_texture, TexCoords, 1000.f).rgb; //average color from mipmap
 
 
     if ( F.z > 0.0 )
@@ -102,5 +103,5 @@ void main() {
 
     FragColor = vec4((G_cov), 1.0);
 
-    // FragColor = texture(srcText, TexCoords);
+    // FragColor = vec4((G_cov), 1.0);
 }

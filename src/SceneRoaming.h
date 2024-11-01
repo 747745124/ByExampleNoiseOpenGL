@@ -38,6 +38,7 @@ private:
 	std::unique_ptr<Texture> _gaussianTexture;
 	int blendMode = 0;
 	bool hideGUI = false;
+	char input_buffer[256] = "";
 
 
 	void renderFrame() override;
@@ -48,16 +49,15 @@ private:
 
 	void draw_blend_pass();
 
-
-#ifdef _win32
-	// Screenshot
-	bool Screenshot();
+#ifdef __APPLE__
+	// Captures the current OpenGL framebuffer and saves it to a file
+    bool saveScreenshot(const std::string& filename, int width, int height);
 #endif
 };
 
 //synth shader
-const std::string synthTexturePath = "../data/noise/wood_256.png";
-const std::string gaussianTexturePath = "../output/wood_256_g.png";
+const std::string synthTexturePath = "../data/noise/granite_256.png";
+const std::string gaussianTexturePath = "../output/granite_256_g.png";
 const std::string synthVertCode = "../shader/synth.vs";
 const std::string synthFragCode = "../shader/synth.fs";
 const std::string debugVertCode = "../shader/debug.vs";

@@ -73,4 +73,18 @@ void SceneRoaming::handleInput()
 		return;
 	}
 
+	if (_keyboardInput.keyStates[GLFW_KEY_TAB] == GLFW_PRESS)
+	{	
+		std::string path = "../output/";
+		path += input_buffer;
+		path += ".png";
+
+		// If you need char*:
+		const char* c_path = path.c_str();
+
+		saveScreenshot(c_path, this->_windowWidth,this->_windowHeight);
+		_keyboardInput.keyStates[GLFW_KEY_TAB] = GLFW_RELEASE;
+		return;
+	}
+
 };

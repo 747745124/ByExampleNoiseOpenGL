@@ -24,6 +24,11 @@ void SceneRoaming::drawLightGUI()
         ImGui::SameLine();
         ImGui::RadioButton("Use Gaussian Variance", &blendMode, 2);
         ImGui::End();
+
+        ImGui::Separator();
+        ImGui::Text("File name");
+        ImGui::InputText("Screenshot Path",input_buffer, sizeof(input_buffer));
+
     }
 
     ImGui::Render();

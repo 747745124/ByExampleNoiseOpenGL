@@ -86,44 +86,51 @@ def plot_rgb_histograms_comparison(image1_path, image2_path, bins=256, figure_si
     plt.tight_layout()
     plt.show()
 
-def plot_rgb_histograms_comparison(image1_path, image2_path, image3_path , image4_path, bins=256, figure_size=(15, 5)):
-    # Read both images
+def plot_rgb_histograms_comparison(image1_path, image2_path, image3_path, image4_path, bins=256, figure_size=(20, 8)):
+    # Read all images
     img1 = io.imread(image1_path)
     img2 = io.imread(image2_path)
     img3 = io.imread(image3_path)
     img4 = io.imread(image4_path)
 
-    # Create subplots
-    fig, (ax1, ax2, ax3, ax4) = plt.subplots(1, 4, figsize=figure_size)
+    # Create subplots - 2 rows for image and histogram
+    fig, ((ax_img1, ax_img2, ax_img3, ax_img4), 
+          (ax_hist1, ax_hist2, ax_hist3, ax_hist4)) = plt.subplots(2, 4, figsize=figure_size)
 
-    # Plot histograms for each image
-    for ax, img, title in zip([ax1, ax2, ax3, ax4], [img1, img2, img3, img4], ['Image 1', 'Image 2', 'Image 3', 'Image 4']):
+    # Plot images and histograms
+    for ax_img, ax_hist, img, title in zip(
+        [ax_img1, ax_img2, ax_img3, ax_img4],
+        [ax_hist1, ax_hist2, ax_hist3, ax_hist4],
+        [img1, img2, img3, img4],
+        ['Original', 'OT', 'Linear', 'Var']):
+        
+        # Show image
+        ax_img.imshow(img)
+        ax_img.set_title(f'Image - {title}')
+        ax_img.axis('off')  # Hide axes for image
+        
+        # Plot histogram
         colors = ('red', 'green', 'blue')
         for i, color in enumerate(colors):
             hist, bin_centers = histogram(img[:,:,i], nbins=bins, normalize=True)
+            
             # Apply smoothing
             smoothed_hist = np.convolve(hist, np.ones(5)/5, mode='valid')
             smoothed_bins = bin_centers[2:-2]
-
-            ax.plot(smoothed_bins, smoothed_hist, color=color, alpha=0.7, 
-                   linewidth=2, label=color.upper())
-
-        ax.set_xlabel('Pixel Intensity')
-        ax.set_ylabel('Normalized Frequency')
-        ax.set_title(f'RGB Histogram - {title}')
-        ax.legend()
-        ax.grid(True, alpha=0.2)
-        ax.spines['top'].set_visible(False)
-        ax.spines['right'].set_visible(False)
+            
+            ax_hist.plot(smoothed_bins, smoothed_hist, color=color, alpha=0.7, 
+                        linewidth=2, label=color.upper())
+        
+        ax_hist.set_xlabel('Pixel Intensity')
+        ax_hist.set_ylabel('Normalized Frequency')
+        ax_hist.set_title(f'RGB Histogram - {title}')
+        ax_hist.legend()
+        ax_hist.grid(True, alpha=0.2)
+        ax_hist.spines['top'].set_visible(False)
+        ax_hist.spines['right'].set_visible(False)
 
     plt.tight_layout()
     plt.show()
-
-
-
-
-
-
 
 
 from skimage.exposure import histogram
@@ -294,10 +301,13 @@ def main():
     # Example with sample image paths
     # image_path = "path_to_your_image.jpg"
     # plot_rgb_histogram(image_path)
+    # gaussian_image_path = "./blended/granite_blended.png"
+    # gaussian_image = load_image(gaussian_image_path)
+    # analyze_gaussian_input(gaussian_image)
     
     # For comparison of two images
-    plot_rgb_histograms_comparison("./data/noise/wood_256.png", "./mapped/wood_ot_mapped.png"
-    ,"./mapped/wood_linear.png","./mapped/wood_var.png")
+    plot_rgb_histograms_comparison("./data/noise/granite_256.png", "./mapped/granite_mapped_ot.png"
+    ,"./mapped/granite_linear.png","./mapped/granite_var.png")
     # image_path = "./data/noise/fire_256.png"
     # gaussian_path = "./output/fire_128_g_ot.png"
     # gaussian_image = load_image(image1_path)
