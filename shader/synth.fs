@@ -95,8 +95,8 @@ void main() {
 
     vec3 G_cov = (upper-avg)/length(W) + avg;
     //inverse gaussian transformation
-    vec3 U = vec3(0.5) + 0.5*erf((G_cov - vec3(0.5))/(6*sqrt(2.0)));
-    FragColor = vec4(clamp(G_cov,0.0,1.0), 1.0);
+    //vec3 U = vec3(0.5) + 0.5*erf((G_cov - vec3(0.5))/(6*sqrt(2.0)));
+    G_cov = clamp(G_cov,0.0,1.0);
 
     if(blendMode==0)
         G_cov = upper;

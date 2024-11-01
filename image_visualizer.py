@@ -298,16 +298,13 @@ def plot_2d_distributions(gaussian_image):
 
 # Example usage
 def main():
-    # Example with sample image paths
-    # image_path = "path_to_your_image.jpg"
-    # plot_rgb_histogram(image_path)
-    # gaussian_image_path = "./blended/granite_blended.png"
-    # gaussian_image = load_image(gaussian_image_path)
-    # analyze_gaussian_input(gaussian_image)
-    
-    # For comparison of two images
-    plot_rgb_histograms_comparison("./data/noise/granite_256.png", "./mapped/granite_mapped_ot.png"
-    ,"./mapped/granite_linear.png","./mapped/granite_var.png")
+    plot_rgb_histograms_comparison("./data/noise/fire_256.png", "./mapped/fire_mapped_ot.png"
+    ,"./mapped/fire_linear.png","./mapped/fire_var.png")
+
+
+
+
+
     # image_path = "./data/noise/fire_256.png"
     # gaussian_path = "./output/fire_128_g_ot.png"
     # gaussian_image = load_image(image1_path)
@@ -318,7 +315,7 @@ def main():
     # gaussian_image = load_image(gaussian_path)
     # analyze_gaussian_input(gaussian_image)
     # analyze_gaussian_input(mapped_image)
-    # plot_image_difference(image_path, mapped_path)
+    # plot_image_difference("./blended/fire_blended.png", "./blended/fire_blended_unclip.png")
     # analyze_gaussian_input(blended_image)
     # plot_2d_distributions(blended_image)
     

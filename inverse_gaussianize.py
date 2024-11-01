@@ -157,11 +157,17 @@ def process_texture(gaussian_image_path, reference_image_path):
 
 
 if __name__ == '__main__':
-    gaussian_image_path = './blended/granite_blended.png'
-    reference_image_path = './data/noise/granite_256.png'
+    gaussian_image_path = './blended/cement_blended.png'
+    reference_image_path = './data/noise/cement_256.png'
 
     gaussian_image = load_image(gaussian_image_path)
     reference_image = load_image(reference_image_path)
+
+    result = optimal_transport(gaussian_image, reference_image, allow_diff_dimensions=True, sample_from_dest=True, batch_size=1000)
+    # result = process_texture(gaussian_image_path, reference_image_path)
+    io.imsave('mapped/cemenr_mapped_ot.png', (result*255).astype('uint8'))
+
+
 
     # #sampling from reference image
     # reference_image = reference_image.reshape(-1, 3)
@@ -169,7 +175,3 @@ if __name__ == '__main__':
     # reference_image = reference_image[indices]
     # # resize
     # reference_image = reference_image.reshape(40, 40, 3)
-
-    result = optimal_transport(gaussian_image, reference_image, allow_diff_dimensions=True, sample_from_dest=True, batch_size=1000)
-    # result = process_texture(gaussian_image_path, reference_image_path)
-    io.imsave('mapped/granite_mapped_ot.png', (result*255).astype('uint8'))

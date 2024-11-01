@@ -27,7 +27,7 @@ def scale(image, width, height):
 if __name__ == '__main__':
 
     input_folder = './data/noise'
-    name = 'wood.png'
+    name = 'cement.png'
     file_name = os.path.join(input_folder, name)
 
     img = Image.open(file_name).convert('RGB')
@@ -49,7 +49,7 @@ if __name__ == '__main__':
     axes[1].set_title('Scaled Image')
     plt.show()
 
-    output_name = name.split('.')[0] + '_scaled.png'
+    output_name = input_folder + '/'+ name.split('.')[0] + '_256.png'
     Image.fromarray(scaled_image).save(output_name)
 
 
