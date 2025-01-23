@@ -157,15 +157,15 @@ def process_texture(gaussian_image_path, reference_image_path):
 
 
 if __name__ == '__main__':
-    gaussian_image_path = './blended/cement_blended.png'
-    reference_image_path = './data/noise/cement_256.png'
+    gaussian_image_path = './blended/tiles_blended.png'
+    reference_image_path = './data/noise/tiles_256.png'
 
     gaussian_image = load_image(gaussian_image_path)
     reference_image = load_image(reference_image_path)
 
     result = optimal_transport(gaussian_image, reference_image, allow_diff_dimensions=True, sample_from_dest=True, batch_size=1000)
     # result = process_texture(gaussian_image_path, reference_image_path)
-    io.imsave('mapped/cemenr_mapped_ot.png', (result*255).astype('uint8'))
+    io.imsave('mapped/tiles_mapped_ot.png', (result*255).astype('uint8'))
 
 
 

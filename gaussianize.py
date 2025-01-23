@@ -135,7 +135,7 @@ def gaussianize_image(input_image_path, mean=0.5, variance=1/36):
 if __name__ == '__main__':
     # Gaussianize an texture image here
     # input image path
-    input_image_path = 'data/noise/fire_256.png'
+    input_image_path = 'data/noise/tiles_256.png'
     # gaussianize the image
     result = gaussianize_image(input_image_path)
     
