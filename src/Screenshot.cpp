@@ -1,9 +1,9 @@
 #pragma once
-#include "SceneRoaming.h"
+#include "NoiseSynth.h"
 #include <opencv2/opencv.hpp>
 
 // Captures the current OpenGL framebuffer and saves it to a file
-bool SceneRoaming::saveScreenshot(const std::string& filename, int width, int height) {
+bool NoiseSynth::saveScreenshot(const std::string& filename, int width, int height) {
     if(!hideGUI){
         hideGUI = true;
         return false;

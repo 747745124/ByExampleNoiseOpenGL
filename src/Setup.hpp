@@ -1,6 +1,6 @@
 #pragma once
-#include "SceneRoaming.h"
-SceneRoaming::SceneRoaming(const std::string &basedir)
+#include "NoiseSynth.h"
+NoiseSynth::NoiseSynth(const std::string &basedir)
 {
  
 #ifdef DEBUG
@@ -33,7 +33,7 @@ SceneRoaming::SceneRoaming(const std::string &basedir)
 
 }
 
-SceneRoaming::~SceneRoaming()
+NoiseSynth::~NoiseSynth()
 {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();

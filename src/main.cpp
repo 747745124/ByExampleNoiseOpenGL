@@ -1,11 +1,11 @@
-#include "SceneRoaming.h"
+#include "NoiseSynth.h"
 
 // #define DEBUG
 int main()
 {
 	try
 	{
-		SceneRoaming app("../data");
+		NoiseSynth app("../data");
 		app.run();
 	}
 	catch (std::exception &e)

@@ -5,13 +5,13 @@
 #include "../external/imgui/imgui.h"
 #include "../external/imgui/imgui_impl_glfw.h"
 #include "../external/imgui/imgui_impl_opengl3.h"
-#include "./SceneRoaming.h"
+#include "./NoiseSynth.h"
 #include "./GUI.hpp"
 #include "./Setup.hpp"
 
 
 // main renderloop
-void SceneRoaming::renderFrame()
+void NoiseSynth::renderFrame()
 {
 	// some options related to imGUI
 	static bool wireframe = false;
@@ -22,7 +22,7 @@ void SceneRoaming::renderFrame()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
 
-	draw_debug_pass();
+	// draw_debug_pass();
 	draw_blend_pass();
 	if(!hideGUI)
 		drawLightGUI();
@@ -31,7 +31,7 @@ void SceneRoaming::renderFrame()
 
 // configure manually which texture to visualize here
 // since all these buffer are not inherited from the same base class
-void SceneRoaming::draw_debug_pass()
+void NoiseSynth::draw_debug_pass()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, _windowWidth, _windowHeight);
@@ -46,7 +46,7 @@ void SceneRoaming::draw_debug_pass()
 	rq->renderQuad();
 }
 
-void SceneRoaming::draw_blend_pass()
+void NoiseSynth::draw_blend_pass()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, _windowWidth, _windowHeight);
@@ -63,7 +63,7 @@ void SceneRoaming::draw_blend_pass()
 	rq->renderQuad();
 }
 
-void SceneRoaming::handleInput()
+void NoiseSynth::handleInput()
 {
 	// handle input
 	if (_keyboardInput.keyStates[GLFW_KEY_SPACE] == GLFW_PRESS)
@@ -75,7 +75,7 @@ void SceneRoaming::handleInput()
 
 	if (_keyboardInput.keyStates[GLFW_KEY_TAB] == GLFW_PRESS)
 	{	
-		std::string path = "../output/";
+		std::string path = "../blended/";
 		path += input_buffer;
 		path += ".png";
 
@@ -86,5 +86,4 @@ void SceneRoaming::handleInput()
 		_keyboardInput.keyStates[GLFW_KEY_TAB] = GLFW_RELEASE;
 		return;
 	}
-
 };

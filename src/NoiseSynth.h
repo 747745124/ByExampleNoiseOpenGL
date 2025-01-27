@@ -16,12 +16,12 @@
 
 const int fps = 40;
 
-class SceneRoaming : public Application
+class NoiseSynth : public Application
 {
 public:
-	SceneRoaming(const std::string &basedir);
+	NoiseSynth(const std::string &basedir);
 
-	~SceneRoaming();
+	~NoiseSynth();
 
 	std::unique_ptr<RenderQuad> rq;
 
@@ -56,10 +56,10 @@ private:
 };
 
 //synth shader
-const std::string synthTexturePath = "../data/noise/tiles_256.png";
-const std::string gaussianTexturePath = "../output/tiles_256_g.png";
+const std::string synthTexturePath = "../data/noise/crystal_256.png";
+const std::string gaussianTexturePath = "../output/crystal_256_g.png";
 const std::string synthVertCode = "../shader/synth.vs";
-const std::string synthFragCode = "../shader/synth.fs";
+const std::string synthFragCode = "../shader/synth_alt.fs";
 const std::string debugVertCode = "../shader/debug.vs";
 const std::string debugFragCode = "../shader/debug.fs";
 

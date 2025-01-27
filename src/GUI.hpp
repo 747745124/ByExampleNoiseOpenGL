@@ -1,7 +1,7 @@
 #pragma once
-#include "SceneRoaming.h"
+#include "NoiseSynth.h"
 
-void SceneRoaming::drawLightGUI()
+void NoiseSynth::drawLightGUI()
 {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();

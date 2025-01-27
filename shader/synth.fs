@@ -1,14 +1,14 @@
 #version 330 core
 #define P  ( sqrt(3.14159265359)/2. )
-#define scale 12 //number of repetitions
+#define scale 20 //number of repetitions
 
 out vec4 FragColor;
-in vec2 TexCoords;
+in vec2 uv;
 uniform sampler2D src_texture;
 uniform sampler2D gauss_texture;
 // uniform vec2 R;//screen resolution
 uniform vec2 R = vec2(1024.0, 1024.0);
-vec2 U = (TexCoords * R) / R.y * scale; 
+vec2 U = (uv * R) / R.y * scale; 
 uniform int blendMode = 0;
 // float erf(float x) {        // very good approx https://en.wikipedia.org/wiki/Error_function
 //     float e = exp(-x*x); // ( Bürmann series )
@@ -79,7 +79,7 @@ void main() {
     vec3 avg = vec3(0.5);
 
     if(blendMode!=2)
-        avg = textureLod(src_texture, TexCoords, 1000.f).rgb; //average color from mipmap
+        avg = textureLod(src_texture, uv, 1000.f).rgb; //average color from mipmap
 
     if ( F.z > 0.0 )
         upper = ( W.x=   F.z ) * fetch(I)                      // smart interpolation

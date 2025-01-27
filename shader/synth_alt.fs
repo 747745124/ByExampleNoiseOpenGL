@@ -1,19 +1,12 @@
 #version 330 core
 #define P  ( sqrt(3.14159265359)/2. )
-#define scale 12 //number of repetitions
+#define scale 1.0 //number of repetitions
 
 out vec4 FragColor;
-in vec2 TexCoords;
+in vec2 uv;
 uniform sampler2D src_texture;
 uniform sampler2D gauss_texture;
-// uniform vec2 R;//screen resolution
-uniform vec2 R = vec2(1024.0, 1024.0);
-vec2 U = (TexCoords * R) / R.y * scale; 
 uniform int blendMode = 0;
-// float erf(float x) {        // very good approx https://en.wikipedia.org/wiki/Error_function
-//     float e = exp(-x*x); // ( Bürmann series )
-//     return sign(x)/P * sqrt( 1.0 - e ) * ( P + 31.0/200.0*e - 341.0/8000. *e*e );
-// }
 
 // Approximate error function (erf) in GLSL
 float erf(float x) {
@@ -41,65 +34,83 @@ vec3 erf(vec3 x) {
     return vec3(erf(x.x), erf(x.y), erf(x.z));
 }
 
-//gamma correction, unused
-vec3 srgb2rgb(vec3 V) {
-    return pow( max(V,0.), vec3( 2.2 )  );
-}
-
-vec3 rgb2srgb(vec3 V) {
-    return pow( max(V,0.), vec3(1./2.2) );
-}
-
 vec2 hash( vec2 p ) {
     return fract(sin((p)*mat2(127.1,311.7,269.5,183.3))*43758.5453);
 }
 
-vec2 duvdx = dFdx(U/scale);
-vec2 duvdy = dFdy(U/scale);
+// Compute local triangle barycentric coordinates and vertex IDs
+void TriangleGrid(vec2 uv,
+	out float w1, out float w2, out float w3,
+	out ivec2 vertex1, out ivec2 vertex2, out ivec2 vertex3)
+{
+	// Scaling of the input
+	uv *= 3.464; // 2 * sqrt(3)
 
-vec3 fetch(vec2 uv) {
+	// Skew input space into simplex triangle grid
+	const mat2 gridToSkewedGrid = mat2(1.0, 0.0, -0.57735027, 1.15470054);
+	vec2 skewedCoord = gridToSkewedGrid * uv;
+
+	// Compute local triangle vertex IDs and local barycentric coordinates
+	ivec2 baseId = ivec2(floor(skewedCoord));
+	vec3 temp = vec3(fract(skewedCoord), 0);
+	temp.z = 1.0 - temp.x - temp.y;
+	if (temp.z > 0.0)
+	{
+		w1 = temp.z;
+		w2 = temp.y;
+		w3 = temp.x;
+		vertex1 = baseId;
+		vertex2 = baseId + ivec2(0, 1);
+		vertex3 = baseId + ivec2(1, 0);
+	}
+	else
+	{
+		w1 = -temp.z;
+		w2 = 1.0 - temp.y;
+		w3 = 1.0 - temp.x;
+		vertex1 = baseId + ivec2(1, 1);
+		vertex2 = baseId + ivec2(1, 0);
+		vertex3 = baseId + ivec2(0, 1);
+	}
+}
+
+
+vec3 fetch(vec2 uv, vec2 duvdx, vec2 duvdy) {
     if(blendMode==2)
-        return (textureGrad(gauss_texture, U/scale + hash(uv), duvdx, duvdy).rgb);
-    return (textureGrad(src_texture, U/scale + hash(uv), duvdx, duvdy).rgb);
+        return (textureGrad(gauss_texture, uv, duvdx, duvdy).rgb);
+    return (textureGrad(src_texture, uv, duvdx, duvdy).rgb);
 }
 
 void main() {
-    //uv space <-> tiled space
-    mat2 M0 = mat2( 1,0, 0.5,sqrt(3.0)/2.0 );
-    mat2 M = inverse( M0 );    
 
-    vec2 V = M * U,                                    // pre-hexa tilted coordinates
-    I = floor(V);                                // hexa-tile id
-    vec3 F = vec3(fract(V),0);
+    float w1, w2, w3;
+	ivec2 vertex1, vertex2, vertex3;
+    TriangleGrid(uv, w1, w2, w3, vertex1, vertex2, vertex3);
 
-    //weights for interpolation
-    vec3 W;
-    F.z = 1.0 - F.x - F.y; // local hexa coordinates
-    vec3 upper;
+    // Assign random offset to each triangle vertex
+	vec2 uv1 = uv + hash(vertex1);
+	vec2 uv2 = uv + hash(vertex2);
+	vec2 uv3 = uv + hash(vertex3);
+
+	// Precompute UV derivatives 
+	vec2 duvdx = dFdx(uv);
+	vec2 duvdy = dFdy(uv);
+
+	// Fetch Gaussian input
+	vec3 G1 = fetch(uv1, duvdx, duvdy).rgb;
+	vec3 G2 = fetch(uv2, duvdx, duvdy).rgb;
+	vec3 G3 = fetch(uv3, duvdx, duvdy).rgb;
+
+    vec3 G_upper = w1*G1 + w2*G2 + w3*G3;
     vec3 avg = vec3(0.5);
+	vec3 G_cov = G_upper - vec3(0.5);
+	G_cov = G_cov * inversesqrt(w1*w1 + w2*w2 + w3*w3);
+	G_cov = G_cov + vec3(0.5);
 
-    if(blendMode!=2)
-        avg = textureLod(src_texture, TexCoords, 1000.f).rgb; //average color from mipmap
-
-    if ( F.z > 0.0 )
-        upper = ( W.x=   F.z ) * fetch(I)                      // smart interpolation
-            + ( W.y=   F.y ) * fetch(I+vec2(0,1))            // of hexagonal texture patch
-            + ( W.z=   F.x ) * fetch(I+vec2(1,0));           // centered at vertex
-    else                                               
-        upper = ( W.x=  -F.z ) * fetch(I + 1.) 
-            + ( W.y=1. - F.y ) * fetch(I+vec2(1,0)) 
-            + ( W.z=1. - F.x ) * fetch(I+vec2(0,1));
-
-
-    vec3 G_cov = (upper-avg)/length(W) + avg;
-    //inverse gaussian transformation
-    //vec3 U = vec3(0.5) + 0.5*erf((G_cov - vec3(0.5))/(6*sqrt(2.0)));
     G_cov = clamp(G_cov,0.0,1.0);
 
     if(blendMode==0)
-        G_cov = upper;
+        G_cov = G_upper;
 
     FragColor = vec4((G_cov), 1.0);
-
-    // FragColor = vec4((G_cov), 1.0);
 }
