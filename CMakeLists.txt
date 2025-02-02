@@ -32,11 +32,11 @@ set(baseSOURCES external/glad/src/glad.c base/shader.cpp base/camera.cpp base/ob
 set(imguiSources external/imgui/imgui_widgets.cpp external/imgui/imgui_impl_glfw.cpp external/imgui/imgui_impl_opengl3.cpp external/imgui/imgui.cpp external/imgui/imgui_draw.cpp external/imgui/imgui_tables.cpp)
 set(stbSources external/stb/stb_image.cpp external/stb/stb_vorbis.c)
 file(GLOB SOURCES "src/*" "src/utils/*")
-add_executable(sceneRoam ${SOURCES} ${baseSOURCES} ${imguiSources} ${stbSources})
+add_executable(NoiseSynth ${SOURCES} ${baseSOURCES} ${imguiSources} ${stbSources})
 
 # Linking System OpenGL Framework
 if(APPLE)
-    target_link_libraries(sceneRoam "-framework OpenGL")
-    target_link_libraries(sceneRoam ${OpenCV_LIBS})
+    target_link_libraries(NoiseSynth "-framework OpenGL")
+    target_link_libraries(NoiseSynth ${OpenCV_LIBS})
 endif()
 

@@ -17,12 +17,16 @@ void NoiseSynth::drawLightGUI()
     }
     else
     {
-        ImGui::Text("Shadow Type");
+        ImGui::Text("Synth Type");
         ImGui::RadioButton("Linear Mapping", &blendMode, 0);
         ImGui::SameLine();
         ImGui::RadioButton("Variance Preserving Mapping", &blendMode, 1);
         ImGui::SameLine();
         ImGui::RadioButton("Use Gaussian Variance", &blendMode, 2);
+        ImGui::Separator();
+        ImGui::RadioButton("Source Texture", &blendMode, 3);
+        ImGui::SameLine();
+        ImGui::RadioButton("Gaussian Texture", &blendMode, 4);
         ImGui::End();
 
         ImGui::Separator();

@@ -1,4 +1,4 @@
-#version 330 core
+#version 400 core
 #define P  ( sqrt(3.14159265359)/2. )
 #define scale 1.0 //number of repetitions
 
@@ -6,6 +6,8 @@ out vec4 FragColor;
 in vec2 uv;
 uniform sampler2D src_texture;
 uniform sampler2D gauss_texture;
+//inverse transformation LUT
+uniform sampler2D inv_lut;
 uniform int blendMode = 0;
 
 // Approximate error function (erf) in GLSL
@@ -109,8 +111,36 @@ void main() {
 
     G_cov = clamp(G_cov,0.0,1.0);
 
+	//linear mapping
     if(blendMode==0)
-        G_cov = G_upper;
+	{
+		FragColor = vec4(G_upper, 1.0);
+		return;
+	}
 
-    FragColor = vec4((G_cov), 1.0);
+	//variance mapping
+	if(blendMode==1)
+	{
+		FragColor = vec4(G_cov, 1.0);
+		return;
+	}
+
+	if(blendMode==3)
+	{	
+		FragColor = vec4(texture(src_texture, uv).rgb, 1.0);
+		return;
+	}
+
+	if(blendMode==4)
+	{
+		FragColor = vec4(texture(gauss_texture, uv).rgb, 1.0);
+		return;
+	}
+
+	vec3 color;
+	float LOD = textureQueryLod(gauss_texture, uv).y / float(textureSize(inv_lut, 0).y);
+	color.r = texture(inv_lut, vec2(G_cov.r, LOD)).r;
+	color.g	= texture(inv_lut, vec2(G_cov.g, LOD)).g;
+	color.b	= texture(inv_lut, vec2(G_cov.b, LOD)).b;
+    FragColor = vec4((color), 1.0);
 }

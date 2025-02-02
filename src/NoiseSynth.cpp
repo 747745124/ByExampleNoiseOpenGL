@@ -60,6 +60,10 @@ void NoiseSynth::draw_blend_pass()
 	_noiseTexture->bind();
 	glActiveTexture(GL_TEXTURE1);
 	_gaussianTexture->bind();
+
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, Tinv_id);
+
 	rq->renderQuad();
 }
 
