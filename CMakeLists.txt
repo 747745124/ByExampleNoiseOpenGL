@@ -1,14 +1,7 @@
 cmake_minimum_required(VERSION 3.19)
-project(Test)
+project(NoiseSynth)
 set(CMAKE_CXX_STANDARD 17)
 
-# set(GLAD_H external/glad/include)
-# set(GLFW_H external/glfw/include)
-# set(IMGUI_H /imgui)
-# set(STB_H /stb)
-# set(dependencies /base)
-
-# include_directories(${GLAD_H} ${GLFW_H} ${dependencies}${IMGUI_H}${STB_H})
 include_directories(./external ./base ./src ./src/utils)
 include_directories(./external/glad/include)
 include_directories(/opt/homebrew/include)
@@ -16,8 +9,9 @@ include_directories(/opt/homebrew/include/opencv)
 
 find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
+find_package(GLFW3 REQUIRED)
+find_package(OpenGL REQUIRED)
 
-set(GLFW_LINK /opt/homebrew/Cellar/glfw/3.3.8/lib/libglfw.3.dylib)
 link_libraries(${GLFW_LINK})
 link_directories(./lib)
 
@@ -34,9 +28,11 @@ set(stbSources external/stb/stb_image.cpp external/stb/stb_vorbis.c)
 file(GLOB SOURCES "src/*" "src/utils/*")
 add_executable(NoiseSynth ${SOURCES} ${baseSOURCES} ${imguiSources} ${stbSources})
 
-# Linking System OpenGL Framework
-if(APPLE)
-    target_link_libraries(NoiseSynth "-framework OpenGL")
-    target_link_libraries(NoiseSynth ${OpenCV_LIBS})
-endif()
+target_link_libraries(NoiseSynth 
+PRIVATE
+    OpenGL::GL
+    glfw
+    ${OpenCV_LIBS}
+)
+
 
