@@ -23,9 +23,11 @@
 * The dependencies of OpenGL environments are listed in `CMakeLists.txt` 
 
 * Run `gaussianize.py` to get the gaussianized image of the input. The output will be under `/gaussian_output/` by default, with `_g` naming suffix.
+  * The gaussianization step uses `PyOT` library for a batched Optimal Transport calculation. Usually it will take more than 32 Gigs of RAM if we are going to do a gaussianization on a 256 x 256 RGB image.
+  * The batched solver finishes this step in 10 seconds with a 10-core CPU.
 * In`src/NoiseSynth.hpp`, change the `noiseTexturePath`,`gaussianTexturePath` to be the original noise texture path, and the gaussianized noise texture path.
 
-* You can either feed the blended gaussian result (from screenshot function) to the `inverse_gaussianize.py` file to get the final result, or tick “Histogram Mapping” in the GUI to see an approximated result.
+* You can either feed the blended gaussian result (from screenshot function) to the `inverse_gaussianize.py` file to get the final result (256 x 256 to 1024 x 1024 takes 2 min for inverse optimal transport), or tick “Histogram Mapping” in the GUI to see an approximated result (real-time).
 
 * Choose from different blending method.
 
