@@ -94,7 +94,7 @@ void TriangleGrid(vec2 uv,
 
 vec3 fetch(vec2 uv, vec2 duvdx, vec2 duvdy) {
 	// without OT, direct apply interpolation
-    if(blendMode==0 || blendMode==1)
+    if(blendMode==0||blendMode==1)
 		return (textureGrad(src_texture, uv, duvdx, duvdy).rgb);
 
     return (textureGrad(gauss_texture, uv, duvdx, duvdy).rgb);
@@ -144,19 +144,20 @@ void main() {
 	G_cov = G_cov + avg;
     G_cov = clamp(G_cov,0.0,1.0);
 
-	//linear mapping
+	//linear blend
     if(blendMode==0)
 	{
 		FragColor = vec4(G_upper, 1.0);
 		return;
 	}
 
-	//variance mapping
-	if(blendMode==1)
+	//variance blend or gaussian blend
+	if(blendMode==1 || blendMode==5)
 	{
 		FragColor = vec4(G_cov, 1.0);
 		return;
 	}
+
 
 	//inverse LUT
 	vec3 color;

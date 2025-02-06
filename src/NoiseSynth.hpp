@@ -13,10 +13,11 @@
 #include "../base/skybox.h"
 #include "RenderQuad.h"
 
-//path of the noise input, and the gaussianized input (using OT)
-const std::string noiseTexturePath = "../data/noise/crystal_256.png";
-const std::string gaussianTexturePath = "../output/crystal_256_g.png";
-//synth shader
+//HERE ARE THE PATH TO CHANGE, one is input, one is gaussianized input
+const std::string noiseTexturePath = "../data/noise/granite_256.png";
+const std::string gaussianTexturePath = "../gaussian_output/granite_256_g.png";
+
+//Synth shader
 const std::string synthVertCode = "../shader/synth.vs";
 const std::string synthFragCode = "../shader/synth.fs";
 const std::string debugVertCode = "../shader/debug.vs";

@@ -77,7 +77,7 @@ void NoiseSynth::handleInput()
 
 	if (_keyboardInput.keyStates[GLFW_KEY_TAB] == GLFW_PRESS)
 	{	
-		std::string path = "../blended/";
+		std::string path = "../result/";
 		path += input_buffer;
 		path += ".png";
 

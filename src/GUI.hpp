@@ -22,11 +22,13 @@ void NoiseSynth::drawLightGUI()
         ImGui::SameLine();
         ImGui::RadioButton("Variance Preserving Mapping", &blendMode, 1);
         ImGui::SameLine();
-        ImGui::RadioButton("Use Gaussian Variance", &blendMode, 2);
+        ImGui::RadioButton("Histogram Mapping", &blendMode, 2);
         ImGui::Separator();
         ImGui::RadioButton("Source Texture", &blendMode, 3);
         ImGui::SameLine();
         ImGui::RadioButton("Gaussian Texture", &blendMode, 4);
+        ImGui::SameLine();
+        ImGui::RadioButton("Gaussian Bleded", &blendMode, 5);
         ImGui::End();
 
         ImGui::Separator();

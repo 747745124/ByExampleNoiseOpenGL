@@ -102,7 +102,7 @@ def plot_rgb_histograms_comparison(image1_path, image2_path, image3_path, image4
         [ax_img1, ax_img2, ax_img3, ax_img4],
         [ax_hist1, ax_hist2, ax_hist3, ax_hist4],
         [img1, img2, img3, img4],
-        ['Original', 'OT', 'Linear', 'Var']):
+        ['Original', 'Histogram', 'Linear', 'Var']):
         
         # Show image
         ax_img.imshow(img)
@@ -115,8 +115,8 @@ def plot_rgb_histograms_comparison(image1_path, image2_path, image3_path, image4
             hist, bin_centers = histogram(img[:,:,i], nbins=bins, normalize=True)
             
             # Apply smoothing
-            smoothed_hist = np.convolve(hist, np.ones(5)/5, mode='valid')
-            smoothed_bins = bin_centers[2:-2]
+            smoothed_hist = np.convolve(hist, np.ones(15)/15, mode='valid')
+            smoothed_bins = bin_centers[7:-7]
             
             ax_hist.plot(smoothed_bins, smoothed_hist, color=color, alpha=0.7, 
                         linewidth=2, label=color.upper())
@@ -298,22 +298,9 @@ def plot_2d_distributions(gaussian_image):
 
 # Example usage
 def main():
-    plot_rgb_histograms_comparison("./data/noise/marble_256.png", "./mapped/marble_mapped_ot.png"
-    ,"./mapped/marble_linear.png","./mapped/marble_var.png")
+    name = "granite"
+    plot_rgb_histograms_comparison(f'./result/{name}_source.png', f'./result/{name}_blended.png', f'./result/{name}_linear.png', f'./result/{name}_var.png')
 
-    # image_path = "./data/noise/fire_256.png"
-    # gaussian_path = "./output/fire_128_g_ot.png"
-    # gaussian_image = load_image(image1_path)
-    # blended_image = load_image(blended_path)
-    # analyze_gaussian_input(gaussian_image)
-    # plot_2d_distributions(gaussian_image)
-    # original_image = load_image(image_path)
-    # gaussian_image = load_image(gaussian_path)
-    # analyze_gaussian_input(gaussian_image)
-    # analyze_gaussian_input(mapped_image)
-    # plot_image_difference("./blended/fire_blended.png", "./blended/fire_blended_unclip.png")
-    # analyze_gaussian_input(blended_image)
-    # plot_2d_distributions(blended_image)
     
 
 if __name__ == "__main__":
