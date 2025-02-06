@@ -2,7 +2,7 @@
 out vec4 FragColor;
 
 in vec2 TexCoords;
-
+uniform float aspect_ratio;
 uniform sampler2D debugText;
 
 void main() {

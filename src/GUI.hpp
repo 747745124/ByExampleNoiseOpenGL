@@ -1,5 +1,5 @@
 #pragma once
-#include "NoiseSynth.h"
+#include "NoiseSynth.hpp"
 
 void NoiseSynth::drawLightGUI()
 {
@@ -11,7 +11,7 @@ void NoiseSynth::drawLightGUI()
         ImGuiWindowFlags_AlwaysAutoResize |
         ImGuiWindowFlags_NoSavedSettings;
 
-    if (!ImGui::Begin("Control Panel", nullptr, flags))
+    if (!ImGui::Begin("Control Panel (Space to Hide)", nullptr, flags))
     {
         ImGui::End();
     }
@@ -30,7 +30,7 @@ void NoiseSynth::drawLightGUI()
         ImGui::End();
 
         ImGui::Separator();
-        ImGui::Text("File name");
+        ImGui::Text("File name  (Press TAB to save, no extension required.)");
         ImGui::InputText("Screenshot Path",input_buffer, sizeof(input_buffer));
 
     }

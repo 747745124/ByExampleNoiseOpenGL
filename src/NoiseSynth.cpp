@@ -5,10 +5,9 @@
 #include "../external/imgui/imgui.h"
 #include "../external/imgui/imgui_impl_glfw.h"
 #include "../external/imgui/imgui_impl_opengl3.h"
-#include "./NoiseSynth.h"
+#include "./NoiseSynth.hpp"
 #include "./GUI.hpp"
 #include "./Setup.hpp"
-
 
 // main renderloop
 void NoiseSynth::renderFrame()
@@ -38,10 +37,10 @@ void NoiseSynth::draw_debug_pass()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	_debugShader->use();
-	_debugShader->setVec2("R",glm::vec2(this->_windowWidth,this->_windowHeight));
+	_debugShader->setFloat("aspect_ratio",((float)this->_windowWidth/(float)this->_windowHeight));
 
 	glActiveTexture(GL_TEXTURE0);
-	_noiseTexture->bind();
+	_invLutTexture->bind();
 
 	rq->renderQuad();
 }
@@ -53,16 +52,15 @@ void NoiseSynth::draw_blend_pass()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	_synthShader->use();
-	_synthShader->setVec2("R",glm::vec2(this->_windowWidth,this->_windowHeight));
+	_synthShader->setFloat("aspect_ratio",(float)this->_windowWidth/(float)this->_windowHeight);
 	_synthShader->setInt("blendMode",blendMode);
 
 	glActiveTexture(GL_TEXTURE0);
 	_noiseTexture->bind();
 	glActiveTexture(GL_TEXTURE1);
 	_gaussianTexture->bind();
-
 	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, Tinv_id);
+	_invLutTexture->bind();
 
 	rq->renderQuad();
 }

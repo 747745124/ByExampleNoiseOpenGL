@@ -1,4 +1,4 @@
-#include "NoiseSynth.h"
+#include "NoiseSynth.hpp"
 
 // #define DEBUG
 int main()

@@ -1,6 +1,7 @@
 #pragma once
-#include "NoiseSynth.h"
+#include "NoiseSynth.hpp"
 #include "jacobi.h"
+#include "TextureDataFloat.hpp"
 // Ref: https://eheitzresearch.wordpress.com/738-2/
 #define GAUSSIAN_AVERAGE 0.5f // Expectation of the Gaussian distribution
 #define GAUSSIAN_STD 0.16666f // Std of the Gaussian distribution
@@ -134,7 +135,7 @@ void ComputeEigenVectors(TextureDataFloat& input, vec3 eigenVectors[3])
 	eigenVectors[2] = vec3((float)eigenVectorsTemp[0][2], (float)eigenVectorsTemp[1][2], (float)eigenVectorsTemp[2][2]);
 }
 
-// Main function of Section 1.4
+// PCA, this is required if we gonna do transformation per channel
 void DecorrelateColorSpace(
  TextureDataFloat& input,			  // input: example image
  TextureDataFloat& input_decorrelated,// output: decorrelated input 
@@ -232,7 +233,7 @@ float ComputeLODAverageSubpixelVariance(TextureDataFloat& image, int LOD, int ch
 	return average_window_variance;
 }
 
-// Filter LUT by sampling a Gaussian N(mu, std�)
+// Filter LUT by sampling a Gaussian N(mu, std)
 float FilterLUTValueAtx(TextureDataFloat& LUT, float x, float std, int channel)
 {
 	// Number of samples for filtering (heuristic: twice the LUT resolution)
@@ -258,7 +259,7 @@ float FilterLUTValueAtx(TextureDataFloat& LUT, float x, float std, int channel)
 	return filtered_value;
 }
 
-// Main function of section 1.5
+// Filter LUT
 void PrefilterLUT(TextureDataFloat& image_T_Input, TextureDataFloat& LUT_Tinv, int channel)
 {
 	// Compute number of prefiltered levels and resize LUT

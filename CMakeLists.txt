@@ -4,11 +4,8 @@ set(CMAKE_CXX_STANDARD 17)
 
 include_directories(./external ./base ./src ./src/utils)
 include_directories(./external/glad/include)
-include_directories(/opt/homebrew/include)
-include_directories(/opt/homebrew/include/opencv)
 
 find_package(OpenCV REQUIRED)
-include_directories(${OpenCV_INCLUDE_DIRS})
 find_package(GLFW3 REQUIRED)
 find_package(OpenGL REQUIRED)
 

@@ -1,5 +1,5 @@
 #pragma once
-#include "NoiseSynth.h"
+#include "NoiseSynth.hpp"
 #include <opencv2/opencv.hpp>
 
 // Captures the current OpenGL framebuffer and saves it to a file

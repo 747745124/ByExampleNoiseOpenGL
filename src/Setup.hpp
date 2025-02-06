@@ -1,5 +1,5 @@
 #pragma once
-#include "NoiseSynth.h"
+#include "NoiseSynth.hpp"
 #include "Precompute.hpp"
 NoiseSynth::NoiseSynth(const std::string &basedir)
 {   
@@ -20,30 +20,42 @@ NoiseSynth::NoiseSynth(const std::string &basedir)
     _synthShader->use();
     _synthShader->setInt("src_texture",0);
     _synthShader->setInt("gauss_texture",1);
-
+    _synthShader->setInt("inv_lut_texture",2);
 
     TextureDataFloat _noiseTextureData;
     if(TextureDataFloat::LoadTextureFromPNG(noiseTexturePath.c_str(),_noiseTextureData))
         return;
+    
+    // note that to perform an approximate OT through histogram normalization
+    // a decorrelation step is required (i.e. PCA)
+    TextureDataFloat input_decorrelated = TextureDataFloat(_noiseTextureData.width, _noiseTextureData.height, 3);
 
+	DecorrelateColorSpace(_noiseTextureData, 
+							input_decorrelated, 
+							this->colorSpaceVec1, 
+							this->colorSpaceVec2, 
+							this->colorSpaceVec3, 
+							this->colorSpaceOrigin);
+
+    _synthShader->use();
+    _synthShader->setVec3("_colorSpaceVec1",this->colorSpaceVec1);
+    _synthShader->setVec3("_colorSpaceVec2",this->colorSpaceVec2);
+    _synthShader->setVec3("_colorSpaceVec3",this->colorSpaceVec3);
+    _synthShader->setVec3("_colorSpaceOrigin",this->colorSpaceOrigin);
+    
     //calculating inverse transformation
     const int LUT_WIDTH = 128;
     auto Tinv = TextureDataFloat(LUT_WIDTH, 1, 3);
     for(int channel = 0 ; channel < 3 ; channel++)
 	{
-		ComputeinvT(_noiseTextureData, Tinv, channel);
+		ComputeinvT(input_decorrelated, Tinv, channel);
 	}
 
-    Tinv_id = CreateGLTextureFromTextureDataStruct(Tinv, GL_CLAMP_TO_EDGE, false);
-
-    for(int channel = 0 ; channel < 3 ; channel++)
-	{
-		PrefilterLUT(_noiseTextureData, Tinv, channel);
-	}
-
-    //synth noise textures
+    _invLutTexture.reset(new Texture2D());
     _noiseTexture.reset(new Texture2D(noiseTexturePath));
     _gaussianTexture.reset(new Texture2D(gaussianTexturePath));
+
+    CreateGLTextureFromTextureDataStruct(*_invLutTexture.get(), Tinv, GL_CLAMP_TO_EDGE, false);
 
     // init imgui
     IMGUI_CHECKVERSION();
